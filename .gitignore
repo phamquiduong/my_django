@@ -1,5 +1,8 @@
+# Python
 .venv/
 __pycache__/
 
+# Docker
+docker/django/static/
 docker/postgresql/data/
 docker/.env

@@ -10,4 +10,7 @@ docker-compose down
 docker-compose up --build -d
 
 @REM Migrate
-docker-compose exec api python manage.py migrate
+docker-compose exec django python manage.py migrate
+
+@REM Collect static files
+docker-compose exec django python manage.py collectstatic --noinput

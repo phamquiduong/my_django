@@ -8,4 +8,4 @@ COPY docker/.env .env
 COPY src/ src/
 WORKDIR /src
 
-CMD [ "gunicorn", "main.wsgi:application", "--bind", "0.0.0.0:8000", "--reload" ]
+CMD [ "gunicorn", "main.wsgi:application", "--bind", "0.0.0.0:8000" ]
