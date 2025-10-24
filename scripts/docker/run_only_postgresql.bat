@@ -8,5 +8,8 @@ IF NOT EXIST .env (
     copy .env.example .env
 )
 
-@REM Create super user
-docker-compose exec django python manage.py createsuperuser
+@REM Down all services
+docker-compose down
+
+@REM Build and up PostgreSQL
+docker-compose up postgresql --build -d
