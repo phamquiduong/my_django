@@ -1,0 +1,13 @@
+@echo off
+
+cd docker
+IF NOT EXIST .env (
+    echo .env file not found. Copying from .env.example...
+    copy .env.example .env
+)
+
+docker-compose down
+docker-compose up --build -d
+
+@REM Migrate
+docker-compose exec api python manage.py migrate
