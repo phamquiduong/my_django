@@ -7,13 +7,11 @@ services:
       - 8000
     volumes:
       - ../src:/src
+      - ../docker/.env:/.env
       - ../docker/django/static:/static
-    command: [ "gunicorn", "main.wsgi:application", "--bind", "0.0.0.0:8000", "--reload" ]
+    command: bash -c "python manage.py wait_for_db && gunicorn main.wsgi:application --bind 0.0.0.0:8000 --reload"
     environment:
       - POSTGRES_DOCKER_HOST=postgresql
-    depends_on:
-      postgresql:
-        condition: service_healthy
     restart: always
 
   postgresql:
@@ -26,12 +24,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ./postgresql/data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    restart: always
 
   nginx:
     image: nginx:1.29.2
@@ -40,6 +32,4 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./django/static:/app/static
-    depends_on:
-      - django
     restart: always

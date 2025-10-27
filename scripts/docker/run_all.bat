@@ -14,6 +14,9 @@ docker-compose down
 @REM Build and up all services
 docker-compose up --build -d
 
+@REM Wait DB starting up
+docker-compose exec django python manage.py wait_for_db
+
 @REM Migrate
 docker-compose exec django python manage.py migrate
 
