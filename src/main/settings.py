@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     # Project apps
     'common',
+    'account',
 ]
 
 MIDDLEWARE = [
@@ -136,3 +137,40 @@ STATIC_ROOT = BASE_DIR / '../static'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Location
+VN_LOCATION_RESOURCE_DIR \
+    = BASE_DIR / '../resource/vietnamese-provinces-database/2025-10-28/full_json_generated_data_vn_units.json'
+
+
+# Authentication model
+AUTH_USER_MODEL = 'account.User'
+
+
+# Logging config
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '[%(levelname)s] [%(asctime)s] [%(filename)s:%(lineno)d] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': os.getenv('LOG_LEVEL', 'INFO'),
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': os.getenv('SQL_LOG_LEVEL', 'INFO'),
+        },
+    },
+}

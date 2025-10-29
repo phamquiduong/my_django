@@ -14,6 +14,12 @@
 .\scripts\docker\create_superuser.bat
 ```
 
+#### Refresh location data into DB
+```
+.\scripts\docker\refresh_location.bat
+```
+
+
 <br>
 
 ## Run manual
@@ -21,3 +27,8 @@
 ```
 .\scripts\docker\create_superuser.bat
 ```
+
+<br>
+
+## Document
+- Thank you so much. The VietNam provinces database: https://github.com/thanglequoc/vietnamese-provinces-database

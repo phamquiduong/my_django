@@ -7,6 +7,7 @@ services:
       - 8000
     volumes:
       - ../src:/src
+      - ../resource:/resource
       - ../docker/.env:/.env
       - ../docker/django/static:/static
     command: bash -c "python manage.py wait_for_db && gunicorn main.wsgi:application --bind 0.0.0.0:8000 --reload"
