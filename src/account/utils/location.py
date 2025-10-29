@@ -12,7 +12,7 @@ logger = logging.getLogger()
 
 @transaction.atomic
 def refresh_vn_location_data(json_path: Path = settings.VN_LOCATION_RESOURCE_DIR):
-    logger.info('Starting load data from %s', json_path)
+    logger.info('Starting load data from %s', json_path.resolve())
     with open(json_path, mode='r', encoding='utf-8') as file:
         json_data = json.load(file)
 
