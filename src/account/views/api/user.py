@@ -3,7 +3,9 @@ from http import HTTPMethod
 from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 
 from account.serializers.user import UserCreateSerializer, UserUpdateByAdminSerializer
 
@@ -22,6 +24,8 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username', 'email')
 
     def get_permissions(self):
+        if self.action == 'me':
+            return [IsAuthenticated()]
         if self.request.method in [HTTPMethod.PUT, HTTPMethod.PATCH, HTTPMethod.DELETE]:
             return [IsAdminUser()]
         return [AllowAny()]
@@ -30,3 +34,8 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.request.method == HTTPMethod.POST:
             return UserCreateSerializer
         return UserUpdateByAdminSerializer
+
+    @action(detail=False, methods=[HTTPMethod.GET])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
