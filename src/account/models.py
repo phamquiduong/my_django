@@ -36,9 +36,10 @@ class User(AbstractUser, TimestampMixin):
     phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
     phone_number_verified = models.BooleanField(default=False)
 
+    email = models.EmailField(unique=True, null=True, blank=True)
     email_verified = models.BooleanField(default=False)
 
-    provide = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True, blank=True)
+    province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True, blank=True)
     ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True)
 
     REQUIRED_FIELDS = []
