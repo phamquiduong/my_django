@@ -96,6 +96,40 @@ DATABASES = {
 }
 
 
+# Redis
+REDIS = {
+    'default': {
+        'HOST': os.getenv('REDIS_DOCKER_HOST') or os.environ['REDIS_HOST'],
+        'PORT': os.environ['REDIS_PORT'],
+        'PASSWORD': os.environ['REDIS_PASSWORD'],
+    }
+}
+
+REDIS_URL_PATTERN = 'redis://:{password}@{host}:{port}/{db_index}'
+REDIS_URLS = {
+    name: REDIS_URL_PATTERN.format(
+        password=config['PASSWORD'],
+        host=config['HOST'],
+        port=config['PORT'],
+        db_index=config.get('DB_INDEX', 0),
+    )
+    for name, config in REDIS.items()
+}
+
+
+# Cache server
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': REDIS_URLS['default'],
+    }
+}
+
+
+# Set the Session in Cache server
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
