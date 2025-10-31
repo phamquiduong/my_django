@@ -25,7 +25,7 @@
 ## Run manual
 #### Run Django server
 ```
-.\scripts\docker\create_superuser.bat
+.\scripts\run_django.bat
 ```
 
 <br>
