@@ -98,7 +98,7 @@ DATABASES = {
         'NAME': os.environ['POSTGRES_DB'],
         'USER': os.environ['POSTGRES_USER'],
         'PASSWORD': os.environ['POSTGRES_PASSWORD'],
-        'HOST': os.getenv('POSTGRES_DOCKER_HOST') or os.environ['POSTGRES_HOST'],
+        'HOST': os.environ['POSTGRES_HOST'],
         'PORT': os.environ['POSTGRES_PORT'],
     }
 }
@@ -107,7 +107,7 @@ DATABASES = {
 # Redis
 REDIS = {
     'default': {
-        'HOST': os.getenv('REDIS_DOCKER_HOST') or os.environ['REDIS_HOST'],
+        'HOST': os.environ['REDIS_HOST'],
         'PORT': os.environ['REDIS_PORT'],
         'PASSWORD': os.environ['REDIS_PASSWORD'],
     }
@@ -136,6 +136,15 @@ CACHES = {
 
 # Set the Session in Cache server
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+
+# DynamoDB
+DYNAMO_DB_CONFIG = {
+    'REGION_NAME': os.environ['REGION_NAME'],
+    'AWS_ACCESS_KEY_ID': os.environ['AWS_ACCESS_KEY_ID'],
+    'AWS_SECRET_ACCESS_KEY': os.environ['AWS_SECRET_ACCESS_KEY'],
+    'ENDPOINT_URL': os.environ['ENDPOINT_URL'],
+}
 
 
 # Password validation

@@ -11,9 +11,6 @@ services:
       - ../static:/static
       - ../docker/.env:/.env
     command: bash -c "python manage.py wait_for_db && gunicorn main.wsgi:application --bind 0.0.0.0:8000 --reload"
-    environment:
-      - POSTGRES_DOCKER_HOST=postgresql
-      - REDIS_DOCKER_HOST=redis
     restart: always
 
   postgresql:
@@ -29,17 +26,26 @@ services:
 
   redis:
     image: redis:8.2.2
-    ports:
-      - ${REDIS_PORT}:6379
+    expose:
+      - 6379
     volumes:
       - ./redis/data:/data
     command: [ "redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}" ]
     restart: always
 
+  redis-insight:
+    image: redis/redisinsight:2.70.1
+    ports:
+      - ${REDIS_INSIGHT_PORT}:5540
+    environment:
+      - RI_REDIS_HOST=redis
+      - RI_REDIS_PORT=6379
+      - RI_REDIS_PASSWORD=${REDIS_PASSWORD}
+
   dynamodb:
     image: amazon/dynamodb-local:3.1.0
-    ports:
-      - ${DYNAMODB_PORT}:8000
+    expose:
+      - 8000
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /var/lib/dynamodb"
     volumes:
       - ./dynamodb/data:/var/lib/dynamodb
