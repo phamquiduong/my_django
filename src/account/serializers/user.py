@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from account.serializers.province import ProvinceSerializer
@@ -49,3 +50,36 @@ class UserUpdateByAdminSerializer(UserCreateSerializer):
             'date_joined': {'read_only': True},
         }
         exclude = ('password', 'groups', 'user_permissions')
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True)
+
+    detail = serializers.CharField(read_only=True, default='Password changed successfully')
+
+    def validate_old_password(self, old_password):
+        user = self.context['request'].user
+        if not user.check_password(old_password):
+            raise serializers.ValidationError('Old password is incorrect.')
+        return old_password
+
+    def validate_new_password(self, new_password):
+        old_password = self.initial_data.get('old_password')    # type:ignore
+        if old_password and new_password and old_password == new_password:
+            raise serializers.ValidationError('New password is the same as old password')
+
+        validate_password(new_password, self.context['request'].user)
+        return new_password
+
+    def create(self, *args, **kwargs):
+        pass
+
+    def update(self, *args, **kwargs):
+        pass
+
+    def save(self, *args, **kwargs):    # pylint: disable=W0613
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])  # type:ignore
+        user.save()
+        return user
