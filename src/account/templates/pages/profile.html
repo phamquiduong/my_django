@@ -86,6 +86,8 @@ Profile
   const wardSelect = document.querySelector('#wardSelect')
 
   const updateWardSelect = async () => {
+    wardSelect.innerHTML = '<option value="">---</option>'
+
     let wards = []
 
     let nextPage = `{% url 'account_wards_api-list' %}?province=${provinceSelect.value}`
