@@ -4,10 +4,12 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
+from account.decorators.login import require_login
 from account.forms.profile import ProfileForm
 from account.models import Province
 
 
+@require_login
 def profile_view(request: HttpRequest) -> HttpResponse:
     form = ProfileForm(request.POST or None, instance=request.user)
 

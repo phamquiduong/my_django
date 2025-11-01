@@ -5,9 +5,11 @@ from django.contrib.auth import login
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
+from account.decorators.login import require_login
 from account.forms.change_password import ChangePasswordForm
 
 
+@require_login
 def change_password_view(request: HttpRequest) -> HttpResponse:
     form = ChangePasswordForm(request.POST or None, user=request.user)
 

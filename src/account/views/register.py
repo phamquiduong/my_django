@@ -5,9 +5,11 @@ from django.contrib.auth import login
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
+from account.decorators.login import require_not_login
 from account.forms.register import RegisterForm
 
 
+@require_not_login
 def register_view(request: HttpRequest) -> HttpResponse:
     form = RegisterForm(request.POST or None)
 
