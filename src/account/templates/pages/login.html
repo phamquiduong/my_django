@@ -1,0 +1,53 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}
+Login
+{% endblock title %}
+
+{% block navbar %}
+{% include 'layouts/navbar.html' with path='login' %}
+{% endblock navbar %}
+
+{% block main %}
+<div class="login-container container bg-body-tertiary shadow border rounded px-4 py-5 mt-5">
+  {% include 'components/logo.html' %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="form-floating mb-3">
+      <input type="text" name="username" id="usernameInput" class="form-control" placeholder="Username" value="{{ form.username.value|default:'' }}" tabindex="1">
+      <label for="usernameInput">Username</label>
+      {% include 'components/field_errors.html' with form=form name='username' %}
+    </div>
+
+    <div class="form-floating mb-3">
+      <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Password" value="{{ form.password.value|default:'' }}" tabindex="2">
+      <label for="passwordInput">Password</label>
+      {% include 'components/field_errors.html' with form=form name='password' %}
+    </div>
+
+    <div class="mb-4 text-end">
+      <a href="#" tabindex="4">Forgot password?</a>
+    </div>
+
+    <div class="d-grid">
+      <button type="submit" class="btn btn-primary" tabindex="3">Login</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <div class="text-end mt-5">
+    You do not have account? <a href="{% url 'account_register' %}" tabindex="5">Register in here</a>
+  </div>
+</div>
+{% endblock main %}
+
+{% block style %}
+<style>
+  .login-container {
+    max-width: 30rem;
+  }
+</style>
+{% endblock style %}

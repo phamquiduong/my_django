@@ -1,0 +1,51 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Contest | {% block title %}{%endblock title %}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{% static '/favicon/favicon-96x96.png' %}" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="{% static '/favicon/favicon.svg' %}" />
+  <link rel="shortcut icon" href="{% static '/favicon/favicon.ico' %}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static '/favicon/apple-touch-icon.png' %}" />
+  <meta name="apple-mobile-web-app-title" content="OD Contest" />
+  <link rel="manifest" href="{% static '/favicon/site.webmanifest' %}" />
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="{% static 'bootstrap@5.3.7/bootstrap.min.css' %}">
+  <script src="{% static 'bootstrap@5.3.7/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/change_theme.js' %}"></script>
+
+  <!-- Font awesome -->
+  <link rel="stylesheet" href="{% static 'font-awesome@7.0.0/all.min.css' %}" />
+
+  <!-- Style -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block style %}{% endblock style %}
+</head>
+
+<body>
+  <!-- Navigation bar -->
+  {% block navbar %}{% endblock navbar %}
+
+  <!-- Main content -->
+  <main>{% block main %}{% endblock main %}</main>
+
+  <!-- Toasts -->
+  {% include "components/toasts.html" %}
+</body>
+
+<!-- Script -->
+<script src="{% static 'js/call_api.js' %}"></script>
+<script src="{% static 'js/disable_form.js' %}"></script>
+<script src="{% static 'js/generate_error_html.js' %}"></script>
+<script src="{% static 'js/get_form_submit_data.js' %}"></script>
+{% block script %}{% endblock script %}
+
+</html>

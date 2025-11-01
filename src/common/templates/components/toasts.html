@@ -1,0 +1,40 @@
+{% load static %}
+{% load get_item %}
+
+<div class="toast-container position-fixed end-0 p-3" style="top: 4rem">
+  {% for message in messages %}
+  <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="7000">
+
+    {% if message.tags == 'success' %}
+    <div class="toast-header text-bg-primary">
+      <strong class="me-auto"><i class="fa-solid fa-check me-1"></i> Thành công</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+
+    {% elif message.tags == 'warning' %}
+    <div class="toast-header text-bg-warning">
+      <strong class="me-auto"><i class="fa-solid fa-triangle-exclamation me-1"></i> Cảnh báo</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+
+    {% elif message.tags == 'error' %}
+    <div class="toast-header text-bg-danger">
+      <strong class="me-auto"><i class="fa-solid fa-xmark me-1"></i> Đã xảy ra lỗi</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+
+    {% else %}
+    <div class="toast-header text-bg-info">
+      <strong class="me-auto"><i class="fa-solid fa-circle-info me-1"></i> Thông báo</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <div class="toast-body bg-body rounded-bottom">
+      {{ message|safe }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script src="{% static 'js/show_toast.js' %}"></script>

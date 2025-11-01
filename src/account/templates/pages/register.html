@@ -1,0 +1,75 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}
+Register
+{% endblock title %}
+
+{% block navbar %}
+{% include 'layouts/navbar.html' with path='register' %}
+{% endblock navbar %}
+
+{% block main %}
+<div class="container bg-body-tertiary shadow border rounded px-4 py-5 mt-5 register_container">
+  <div class="mx-auto">
+    <h4>Register new account</h4>
+
+    <hr>
+
+    <form method="post" onsubmit="submitRegisterForm(event)">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="usernameInput" class="form-label">Username</label>
+        <input type="text" name="username" id="usernameInput" class="form-control" minlength="4" maxlength="32" required value="{{ form.username.value|default:'' }}">
+        {% include 'components/field_errors.html' with form=form name='username' %}
+      </div>
+
+      <div class="mb-3">
+        <label for="passwordInput" class="form-label">Password</label>
+        <input type="password" name="password" id="passwordInput" class="form-control" minlength="6" maxlength="32" required value="{{ form.password.value|default:'' }}">
+        {% include 'components/field_errors.html' with form=form name='password' %}
+      </div>
+
+      <div class="mb-4">
+        <label for="passwordConfirmInput" class="form-label">Password confirm</label>
+        <input type="password" id="passwordConfirmInput" class="form-control" minlength="6" maxlength="32" required>
+        <div id="passwordConfirmError"></div>
+      </div>
+
+      <div class="text-center d-grid mb-4">
+        <button type="submit" class="btn btn-secondary">Register now</button>
+      </div>
+    </form>
+
+    <hr>
+
+    <div class="text-end mt-5">
+      If you have a account? <a href="{% url 'account_login' %}">Login in here</a>
+    </div>
+  </div>
+</div>
+{% endblock main %}
+
+{% block style %}
+<style>
+  .register_container {
+    max-width: 30rem;
+  }
+</style>
+{% endblock style %}
+
+{% block script %}
+<script>
+  const passwordInput = document.querySelector('#passwordInput')
+  const passwordConfirmInput = document.querySelector('#passwordConfirmInput')
+
+  const passwordConfirmError = document.querySelector('#passwordConfirmError')
+
+  function submitRegisterForm(event) {
+    if (passwordInput.value != passwordConfirmInput.value) {
+      passwordConfirmError.innerHTML = generateErrorHTML([{ message: 'The password confirm is not the same as the password' }])
+      event.preventDefault()
+    }
+  }
+</script>
+{% endblock script %}

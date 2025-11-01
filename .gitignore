@@ -9,5 +9,5 @@ docker/dynamodb/data/
 docker/redis/data/
 
 # Django
-static/
+/static/
 .env
