@@ -7,25 +7,25 @@
 
     {% if message.tags == 'success' %}
     <div class="toast-header text-bg-primary">
-      <strong class="me-auto"><i class="fa-solid fa-check me-1"></i> Thành công</strong>
+      <strong class="me-auto"><i class="fa-solid fa-check me-1"></i> Success</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
 
     {% elif message.tags == 'warning' %}
     <div class="toast-header text-bg-warning">
-      <strong class="me-auto"><i class="fa-solid fa-triangle-exclamation me-1"></i> Cảnh báo</strong>
+      <strong class="me-auto"><i class="fa-solid fa-triangle-exclamation me-1"></i> Warning</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
 
     {% elif message.tags == 'error' %}
     <div class="toast-header text-bg-danger">
-      <strong class="me-auto"><i class="fa-solid fa-xmark me-1"></i> Đã xảy ra lỗi</strong>
+      <strong class="me-auto"><i class="fa-solid fa-xmark me-1"></i> Error</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
 
     {% else %}
     <div class="toast-header text-bg-info">
-      <strong class="me-auto"><i class="fa-solid fa-circle-info me-1"></i> Thông báo</strong>
+      <strong class="me-auto"><i class="fa-solid fa-circle-info me-1"></i> Information</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     {% endif %}
