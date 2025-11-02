@@ -11,13 +11,13 @@ class HiddenSpectacularAPIView(SpectacularAPIView):
 
 
 api = [
-    path('schema/', HiddenSpectacularAPIView.as_view(), name='api_schema'),
-    path('docs/', SpectacularSwaggerView.as_view(url_name='api_schema'), name='swagger-ui'),
-    path('re-doc/', SpectacularRedocView.as_view(url_name='api_schema'), name='redoc'),
+    path("schema/", HiddenSpectacularAPIView.as_view(), name="api_schema"),
+    path("docs/", SpectacularSwaggerView.as_view(url_name="api_schema"), name="swagger-ui"),
+    path("re-doc/", SpectacularRedocView.as_view(url_name="api_schema"), name="redoc"),
 ]
 
 
 urlpatterns = [
-    path('api/', include(api)),
-    path('', home_view, name='home'),
+    path("api/", include(api)),
+    path("", home_view, name="home"),
 ]

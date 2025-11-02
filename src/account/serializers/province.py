@@ -6,4 +6,4 @@ from account.models import Province
 class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Province
-        fields = '__all__'
+        fields = "__all__"

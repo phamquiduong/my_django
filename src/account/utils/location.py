@@ -12,38 +12,38 @@ logger = logging.getLogger()
 
 @transaction.atomic
 def refresh_vn_location_data(json_path: Path = settings.VN_LOCATION_RESOURCE_DIR):
-    logger.info('Starting load data from %s', json_path.resolve())
-    with open(json_path, mode='r', encoding='utf-8') as file:
+    logger.info("Starting load data from %s", json_path.resolve())
+    with open(json_path, mode="r", encoding="utf-8") as file:
         json_data = json.load(file)
 
     provinces = []
     wards = []
     for province_data in json_data:
         province = Province(
-            name=province_data['Name'],
-            name_en=province_data['NameEn'],
-            full_name=province_data['FullName'],
-            full_name_en=province_data['FullNameEn'],
+            name=province_data["Name"],
+            name_en=province_data["NameEn"],
+            full_name=province_data["FullName"],
+            full_name_en=province_data["FullNameEn"],
         )
-        for ward_data in province_data['Wards']:
+        for ward_data in province_data["Wards"]:
             ward = Ward(
-                name=ward_data['Name'],
-                name_en=ward_data['NameEn'],
-                full_name=ward_data['FullName'],
-                full_name_en=ward_data['FullNameEn'],
+                name=ward_data["Name"],
+                name_en=ward_data["NameEn"],
+                full_name=ward_data["FullName"],
+                full_name_en=ward_data["FullNameEn"],
                 province=province,
             )
             wards.append(ward)
         provinces.append(province)
 
-    logger.info('Delete all Provinces')
+    logger.info("Delete all Provinces")
     Province.objects.all().delete()
 
-    logger.info('Delete all Wards')
+    logger.info("Delete all Wards")
     Ward.objects.all().delete()
 
-    logger.info('Insert Province data')
+    logger.info("Insert Province data")
     Province.objects.bulk_create(provinces)
 
-    logger.info('Insert Ward data')
+    logger.info("Insert Ward data")
     Ward.objects.bulk_create(wards)

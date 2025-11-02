@@ -18,8 +18,7 @@ def profile_view(request: HttpRequest) -> HttpResponse:
             form.save()
             messages.success(request, "Update profile success")
             return redirect("account_profile")
-        else:
-            messages.error(request, "Update profile error. Please check your information")
+        messages.error(request, "Update profile error. Please check your information")
 
     context = {
         "provinces": Province.objects.all(),

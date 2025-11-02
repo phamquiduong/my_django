@@ -12,6 +12,9 @@ IF NOT EXIST .env (
 
 cd src
 
+@REM Wait for the database connection
+python manage.py wait_for_db
+
 @REM Migrate
 python manage.py migrate
 

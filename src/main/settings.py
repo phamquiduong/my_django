@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables
 DOT_ENV_DIR = BASE_DIR / "../.env"
 if not load_dotenv(DOT_ENV_DIR):
-    raise FileNotFoundError(f".env file not found: {DOT_ENV_DIR.resolve()}")
+    print(f".env file not found: {DOT_ENV_DIR.resolve()}")
 
 
 # Quick-start development settings - unsuitable for production
@@ -94,11 +94,11 @@ WSGI_APPLICATION = "main.wsgi.application"
 
 POSTGRESQL_DB = {
     "ENGINE": "django.db.backends.postgresql",
-    "NAME": os.environ["POSTGRES_DB"],
-    "USER": os.environ["POSTGRES_USER"],
-    "PASSWORD": os.environ["POSTGRES_PASSWORD"],
-    "HOST": os.environ["POSTGRES_HOST"],
-    "PORT": os.environ["POSTGRES_PORT"],
+    "NAME": os.getenv("POSTGRES_DB"),
+    "USER": os.getenv("POSTGRES_USER"),
+    "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+    "HOST": os.getenv("POSTGRES_HOST"),
+    "PORT": os.getenv("POSTGRES_PORT"),
 }
 
 SQLITE3_DB = {
@@ -114,9 +114,9 @@ DATABASES = {
 # Redis
 REDIS = {
     "default": {
-        "HOST": os.environ["REDIS_HOST"],
-        "PORT": os.environ["REDIS_PORT"],
-        "PASSWORD": os.environ["REDIS_PASSWORD"],
+        "HOST": os.getenv("REDIS_HOST"),
+        "PORT": os.getenv("REDIS_PORT"),
+        "PASSWORD": os.getenv("REDIS_PASSWORD"),
     }
 }
 
@@ -154,10 +154,10 @@ SESSION_ENGINE = SESSION_CACHED_DB if REDIS_READY else SESSION_DB
 
 # DynamoDB
 DYNAMO_DB_CONFIG = {
-    "REGION_NAME": os.environ["REGION_NAME"],
-    "AWS_ACCESS_KEY_ID": os.environ["AWS_ACCESS_KEY_ID"],
-    "AWS_SECRET_ACCESS_KEY": os.environ["AWS_SECRET_ACCESS_KEY"],
-    "ENDPOINT_URL": os.environ["ENDPOINT_URL"],
+    "REGION_NAME": os.getenv("REGION_NAME"),
+    "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID"),
+    "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY"),
+    "ENDPOINT_URL": os.getenv("ENDPOINT_URL"),
 }
 
 
