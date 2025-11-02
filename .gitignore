@@ -11,3 +11,6 @@ docker/redis/data/
 # Django
 /static/
 .env
+
+# SQlite3
+db.sqlite3

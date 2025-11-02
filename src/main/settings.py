@@ -92,15 +92,22 @@ WSGI_APPLICATION = "main.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+POSTGRESQL_DB = {
+    "ENGINE": "django.db.backends.postgresql",
+    "NAME": os.environ["POSTGRES_DB"],
+    "USER": os.environ["POSTGRES_USER"],
+    "PASSWORD": os.environ["POSTGRES_PASSWORD"],
+    "HOST": os.environ["POSTGRES_HOST"],
+    "PORT": os.environ["POSTGRES_PORT"],
+}
+
+SQLITE3_DB = {
+    "ENGINE": "django.db.backends.sqlite3",
+    "NAME": BASE_DIR / "../db.sqlite3",
+}
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ["POSTGRES_DB"],
-        "USER": os.environ["POSTGRES_USER"],
-        "PASSWORD": os.environ["POSTGRES_PASSWORD"],
-        "HOST": os.environ["POSTGRES_HOST"],
-        "PORT": os.environ["POSTGRES_PORT"],
-    }
+    "default": POSTGRESQL_DB if os.environ["DB_ENGINE"] == POSTGRESQL_DB["ENGINE"] else SQLITE3_DB,
 }
 
 
