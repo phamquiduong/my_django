@@ -26,19 +26,19 @@ Profile
 
       <div class="mb-3">
         <label for="display_nameInput" class="form-label">Display name</label>
-        <input type="text" name="display_name" id="display_nameInput" class="form-control" minlength="4" maxlength="32" required value="{{ form.display_name.value|default:'' }}">
+        <input type="text" name="display_name" id="display_nameInput" class="form-control" maxlength="128" required value="{{ form.display_name.value|default:'' }}">
         {% include 'components/field_errors.html' with form=form name='display_name' %}
       </div>
 
       <div class="mb-3">
         <label for="phone_numberInput" class="form-label">Phone number</label>
-        <input type="text" name="phone_number" id="phone_numberInput" class="form-control" minlength="4" maxlength="32" required value="{{ form.phone_number.value|default:'' }}">
+        <input type="text" name="phone_number" id="phone_numberInput" class="form-control" minlength="10" maxlength="10" value="{{ form.phone_number.value|default:'' }}">
         {% include 'components/field_errors.html' with form=form name='phone_number' %}
       </div>
 
       <div class="mb-3">
         <label for="emailInput" class="form-label">Email</label>
-        <input type="text" name="email" id="emailInput" class="form-control" minlength="4" maxlength="32" required value="{{ form.email.value|default:'' }}">
+        <input type="email" name="email" id="emailInput" class="form-control" maxlength="254" value="{{ form.email.value|default:'' }}">
         {% include 'components/field_errors.html' with form=form name='email' %}
       </div>
 
