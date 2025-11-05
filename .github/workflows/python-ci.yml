@@ -10,8 +10,8 @@ jobs:
   lint_and_test:
     runs-on: ubuntu-latest
     env:
-      SECRET_KEY: UtBwzubmFGXykwWyiLBa0lF0PlXMuA21
-      DB_ENGINE: django.db.backends.sqlite3
+      ENVIRONMENT: testing
+      SECRET_KEY: Myb6Bh1c2XDBA3xfYW6pwUH2NLZ3Kmkt
 
     steps:
       - name: Checkout repository

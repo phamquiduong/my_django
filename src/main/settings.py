@@ -16,15 +16,19 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from common.utils.ping_redis import check_redis
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# Environment
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'dev')
+TEST_MODE = ENVIRONMENT == 'testing'
+
+
 # Load environment variables
 DOT_ENV_DIR = BASE_DIR / '../.env'
-if not load_dotenv(DOT_ENV_DIR):
-    print(f'.env file not found: {DOT_ENV_DIR.resolve()}')
+if not TEST_MODE and not load_dotenv(DOT_ENV_DIR):
+    raise FileNotFoundError(f'.env file not found: {DOT_ENV_DIR.resolve()}')
 
 
 # Quick-start development settings - unsuitable for production
@@ -48,12 +52,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     # Rest framework
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
     'drf_spectacular_sidecar',
+
     # Project apps
     'common',
     'account',
@@ -107,7 +113,7 @@ SQLITE3_DB = {
 }
 
 DATABASES = {
-    'default': POSTGRESQL_DB if os.environ['DB_ENGINE'] == POSTGRESQL_DB['ENGINE'] else SQLITE3_DB,
+    'default': SQLITE3_DB if TEST_MODE else POSTGRESQL_DB,
 }
 
 
@@ -117,6 +123,7 @@ REDIS = {
         'HOST': os.getenv('REDIS_HOST'),
         'PORT': os.getenv('REDIS_PORT'),
         'PASSWORD': os.getenv('REDIS_PASSWORD'),
+        'DB_INDEX': os.getenv('DB_INDEX', '0'),
     }
 }
 
@@ -126,30 +133,32 @@ REDIS_URLS = {
         password=config['PASSWORD'],
         host=config['HOST'],
         port=config['PORT'],
-        db_index=config.get('DB_INDEX', 0),
+        db_index=config['DB_INDEX'],
     )
     for name, config in REDIS.items()
 }
 
-REDIS_READY = check_redis(REDIS_URLS['default'])
 
 # Cache server
 CACHE_REDIS = {
     'BACKEND': 'django.core.cache.backends.redis.RedisCache',
     'LOCATION': REDIS_URLS['default'],
 }
+
 CACHE_MEMORY = {
     'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     'LOCATION': 'unique-snowflake',
 }
 
-CACHES = {'default': CACHE_REDIS if REDIS_READY else CACHE_MEMORY}
+CACHES = {
+    'default': CACHE_MEMORY if TEST_MODE else CACHE_REDIS,
+}
 
 
 # Set the Session in Cache server
 SESSION_CACHED_DB = 'django.contrib.sessions.backends.cached_db'
 SESSION_DB = 'django.contrib.sessions.backends.db'
-SESSION_ENGINE = SESSION_CACHED_DB if REDIS_READY else SESSION_DB
+SESSION_ENGINE = SESSION_CACHED_DB
 
 
 # DynamoDB
@@ -203,10 +212,10 @@ STATIC_ROOT = BASE_DIR / '../static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 # Location
-VN_LOCATION_RESOURCE_DIR = (
+VN_LOCATION_RESOURCE_DIR = \
     BASE_DIR / '../resource/vietnamese-provinces-database/2025-10-28/full_json_generated_data_vn_units.json'
-)
 
 
 # Authentication model
@@ -247,14 +256,17 @@ REST_FRAMEWORK = {
     # Pagination
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+
     # Filter and search
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.OrderingFilter',
         'rest_framework.filters.SearchFilter',
     ],
+
     # Swagger
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
     # Authentication
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',

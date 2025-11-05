@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import UserManager as AbstractUserManager
 from django.db import models
 
 from common.models.base import TimestampMixin
@@ -26,6 +27,14 @@ class Ward(models.Model):
         return f'{self.name}'
 
 
+class UserManager(AbstractUserManager):
+    @classmethod
+    def normalize_email(cls, email):
+        if email is None:
+            return None
+        return super().normalize_email(email)
+
+
 class User(AbstractUser, TimestampMixin):
     # Remove some fields
     first_name = None
@@ -41,6 +50,8 @@ class User(AbstractUser, TimestampMixin):
 
     province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True, blank=True)
     ward = models.ForeignKey(Ward, on_delete=models.SET_NULL, null=True, blank=True)
+
+    objects = UserManager()
 
     REQUIRED_FIELDS = []
 
