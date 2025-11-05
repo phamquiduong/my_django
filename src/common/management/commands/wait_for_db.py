@@ -26,9 +26,9 @@ class Command(BaseCommand):
                 retries += 1
                 if retries > options['max_retries']:
                     self.stderr.write(
-                        self.style.ERROR(f"Database '{db_name}' not available after {options['max_retries']} retries")
+                        self.style.ERROR(f'Database {db_name} not available after {options['max_retries']} retries')
                     )
                     raise SystemExit(1) from exc
-                self.stdout.write(f"Database '{db_name}' unavailable, retry {retries}/{options['max_retries']}...")
+                self.stdout.write(f'Database {db_name} unavailable, retry {retries}/{options['max_retries']}...')
                 time.sleep(options['delay'])
-        self.stdout.write(self.style.SUCCESS(f"Database '{db_name}' available!"))
+        self.stdout.write(self.style.SUCCESS(f'Database {db_name} available!'))

@@ -12,14 +12,8 @@ IF NOT EXIST .env (
 
 cd src
 
-@REM Wait for the database connection
-python manage.py wait_for_db
-
 @REM Migrate
 python manage.py migrate
-
-@REM Collect static files
-python manage.py collectstatic --noinput
 
 @REM Run server at port 80. Visit http://localhost
 python manage.py runserver 0.0.0.0:80
