@@ -1,24 +1,8 @@
 ## Some script with Docker compose
 #### Run all services
 ```
-.\scripts\docker\run_all.bat
+.\scripts\run_docker.bat
 ```
-
-#### Run only PostgreSQL
-```
-.\scripts\docker\run_only_postgresql.bat
-```
-
-#### Create Django super user
-```
-.\scripts\docker\create_superuser.bat
-```
-
-#### Refresh location data into DB
-```
-.\scripts\docker\refresh_location.bat
-```
-
 
 <br>
 
@@ -33,10 +17,10 @@
 
 #### Run Django server
 ```
-.\scripts\run_django.bat
+.\scripts\run_manual.bat
 ```
 
 <br>
 
 ## Reference
-- Thank you so much. The VietNam provinces database: https://github.com/thanglequoc/vietnamese-provinces-database
+- [The VietNam provinces database](https://github.com/thanglequoc/vietnamese-provinces-database)
