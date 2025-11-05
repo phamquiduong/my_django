@@ -56,9 +56,10 @@ Profile
         <div class="col">
           <label for="wardSelect" class="form-label">Ward</label>
           <select name="ward" class="form-select" id="wardSelect">
-            <option value="">---</option>
             {% if form.province.value and form.ward.value %}
             <option value="{{ form.instance.ward.id }}" selected>{{ form.instance.ward.name }}</option>
+            {% else %}
+            <option value="">---</option>
             {% endif %}
           </select>
         </div>
@@ -86,11 +87,9 @@ Profile
   const wardSelect = document.querySelector('#wardSelect')
 
   const updateWardSelect = async () => {
-    wardSelect.innerHTML = '<option value="">---</option>'
-
     let wards = []
 
-    let nextPage = `{% url 'account_wards_api-list' %}?province=${provinceSelect.value}`
+    let nextPage = (provinceSelect.value) ? `{% url 'account_wards_api-list' %}?province=${provinceSelect.value}` : null
 
     while (nextPage !== null) {
       let response = await callAPI(nextPage, "GET")
