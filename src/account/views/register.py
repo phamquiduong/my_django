@@ -16,7 +16,7 @@ def register_view(request: HttpRequest) -> HttpResponse:
     if request.method == HTTPMethod.POST and form.is_valid():
         user = form.save()
         login(request=request, user=user)
-        messages.success(request, "Create account successfully. Welcome to my website")
-        return redirect("home")
+        messages.success(request, 'Create account successfully. Welcome to my website')
+        return redirect('home')
 
-    return render(request, "pages/register.html", {"form": form}, status=HTTPStatus.CREATED)
+    return render(request, 'pages/register.html', {'form': form}, status=HTTPStatus.CREATED)

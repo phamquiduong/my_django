@@ -15,15 +15,15 @@ class ChangePasswordForm(forms.Form):
         self.user = user
 
     def clean_current_password(self):
-        current_password = self.cleaned_data.get("current_password", "")
+        current_password = self.cleaned_data.get('current_password', '')
 
         if not self.user.check_password(current_password):
-            raise forms.ValidationError("Current password is incorrect.")
+            raise forms.ValidationError('Current password is incorrect.')
 
         return current_password
 
     def save(self) -> User:
-        new_password = self.cleaned_data["new_password"]
+        new_password = self.cleaned_data['new_password']
 
         self.user.set_password(new_password)
         self.user.save()

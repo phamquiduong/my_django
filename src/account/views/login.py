@@ -15,6 +15,6 @@ def login_view(request: HttpRequest) -> HttpResponse:
 
     if request.method == HTTPMethod.POST and form.is_valid():
         login(request=request, user=form.user)
-        messages.success(request, "Welcome to my Website")
-        return redirect("home")
-    return render(request, "pages/login.html", {"form": form})
+        messages.success(request, 'Welcome to my Website')
+        return redirect('home')
+    return render(request, 'pages/login.html', {'form': form})

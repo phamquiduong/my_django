@@ -11,7 +11,7 @@ class Province(models.Model):
     full_name_en = models.CharField(max_length=255)
 
     def __str__(self) -> str:
-        return f"{self.name}"
+        return f'{self.name}'
 
 
 class Ward(models.Model):
@@ -23,7 +23,7 @@ class Ward(models.Model):
     province = models.ForeignKey(Province, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
-        return f"{self.name}"
+        return f'{self.name}'
 
 
 class User(AbstractUser, TimestampMixin):
@@ -31,7 +31,7 @@ class User(AbstractUser, TimestampMixin):
     first_name = None
     last_name = None
 
-    display_name = models.CharField(max_length=128, default="User")
+    display_name = models.CharField(max_length=128, default='User')
 
     phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
     phone_number_verified = models.BooleanField(default=False)
@@ -45,4 +45,4 @@ class User(AbstractUser, TimestampMixin):
     REQUIRED_FIELDS = []
 
     def __str__(self) -> str:
-        return f"{self.username}"
+        return f'{self.username}'

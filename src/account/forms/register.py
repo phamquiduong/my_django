@@ -11,16 +11,16 @@ class RegisterForm(forms.Form):
     password = PASSWORD_FIELD
 
     def clean_username(self) -> str:
-        username = self.cleaned_data["username"].lower()
+        username = self.cleaned_data['username'].lower()
 
         if User.objects.filter(username__iexact=username).exists():
-            raise forms.ValidationError("This account already exist.")
+            raise forms.ValidationError('This account already exist.')
 
         return username
 
     def save(self) -> User:
         user = User.objects.create_user(
-            username=self.cleaned_data["username"],
-            password=self.cleaned_data["password"],
+            username=self.cleaned_data['username'],
+            password=self.cleaned_data['password'],
         )
         return user

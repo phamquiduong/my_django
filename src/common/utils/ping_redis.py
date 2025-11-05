@@ -10,5 +10,5 @@ def check_redis(redis_url: str) -> bool:
         redis.StrictRedis.from_url(redis_url, socket_connect_timeout=2).ping()
         return True
     except Exception as exc:
-        logger.warning("Redis unavailable: %s", exc)
+        logger.warning('Redis unavailable: %s', exc)
         return False

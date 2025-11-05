@@ -28,7 +28,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Install linting tools
-        run: pip install pylint isort black
+        run: pip install pylint isort autopep8
 
       - name: Install test tools
         run: pip install pytest pytest-django
@@ -36,8 +36,8 @@ jobs:
       - name: Check import order with isort
         run: isort src --check-only --diff
 
-      - name: Check code format with Black
-        run: black --check --diff src
+      - name: Check code format with autopep8
+        run: autopep8 --diff --exit-code -r src
 
       - name: Run pylint
         run: pylint src

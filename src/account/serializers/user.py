@@ -9,29 +9,29 @@ User = get_user_model()
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
-    province_detail = ProvinceSerializer(source="province", read_only=True)
-    ward_detail = WardSerializer(source="ward", read_only=True)
+    province_detail = ProvinceSerializer(source='province', read_only=True)
+    ward_detail = WardSerializer(source='ward', read_only=True)
 
     class Meta:
         model = User
         extra_kwargs = {
-            "password": {"write_only": True},
-            "province": {"write_only": True},
-            "ward": {"write_only": True},
-            "last_login": {"read_only": True},
-            "is_superuser": {"read_only": True},
-            "is_staff": {"read_only": True},
-            "is_active": {"read_only": True},
-            "date_joined": {"read_only": True},
-            "phone_number_verified": {"read_only": True},
-            "email_verified": {"read_only": True},
+            'password': {'write_only': True},
+            'province': {'write_only': True},
+            'ward': {'write_only': True},
+            'last_login': {'read_only': True},
+            'is_superuser': {'read_only': True},
+            'is_staff': {'read_only': True},
+            'is_active': {'read_only': True},
+            'date_joined': {'read_only': True},
+            'phone_number_verified': {'read_only': True},
+            'email_verified': {'read_only': True},
         }
-        exclude = ("groups", "user_permissions")
+        exclude = ('groups', 'user_permissions')
 
     def validate_ward(self, ward):
-        province_id = self.initial_data.get("province")  # type:ignore
+        province_id = self.initial_data.get('province')  # type:ignore
         if ward and province_id and str(ward.province_id) != str(province_id):
-            raise serializers.ValidationError("Ward does not belong to the selected province")
+            raise serializers.ValidationError('Ward does not belong to the selected province')
         return ward
 
     def create(self, validated_data):
@@ -42,32 +42,32 @@ class UserCreateSerializer(serializers.ModelSerializer):
 class UserUpdateByAdminSerializer(UserCreateSerializer):
     class Meta(UserCreateSerializer.Meta):
         extra_kwargs = {
-            "province": {"write_only": True},
-            "ward": {"write_only": True},
-            "last_login": {"read_only": True},
-            "date_joined": {"read_only": True},
+            'province': {'write_only': True},
+            'ward': {'write_only': True},
+            'last_login': {'read_only': True},
+            'date_joined': {'read_only': True},
         }
-        exclude = ("password", "groups", "user_permissions")
+        exclude = ('password', 'groups', 'user_permissions')
 
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True)
 
-    detail = serializers.CharField(read_only=True, default="Password changed successfully")
+    detail = serializers.CharField(read_only=True, default='Password changed successfully')
 
     def validate_old_password(self, old_password):
-        user = self.context["request"].user
+        user = self.context['request'].user
         if not user.check_password(old_password):
-            raise serializers.ValidationError("Old password is incorrect.")
+            raise serializers.ValidationError('Old password is incorrect.')
         return old_password
 
     def validate_new_password(self, new_password):
-        old_password = self.initial_data.get("old_password")  # type:ignore
+        old_password = self.initial_data.get('old_password')  # type:ignore
         if old_password and new_password and old_password == new_password:
-            raise serializers.ValidationError("New password is the same as old password")
+            raise serializers.ValidationError('New password is the same as old password')
 
-        validate_password(new_password, self.context["request"].user)
+        validate_password(new_password, self.context['request'].user)
         return new_password
 
     def create(self, *args, **kwargs):
@@ -77,7 +77,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         pass
 
     def save(self, *args, **kwargs):  # pylint: disable=W0613
-        user = self.context["request"].user
-        user.set_password(self.validated_data["new_password"])  # type:ignore
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])  # type:ignore
         user.save()
         return user

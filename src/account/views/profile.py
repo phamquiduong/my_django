@@ -16,12 +16,12 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     if request.method == HTTPMethod.POST:
         if form.is_valid():
             form.save()
-            messages.success(request, "Update profile success")
-            return redirect("account_profile")
-        messages.error(request, "Update profile error. Please check your information")
+            messages.success(request, 'Update profile success')
+            return redirect('account_profile')
+        messages.error(request, 'Update profile error. Please check your information')
 
     context = {
-        "provinces": Province.objects.all(),
-        "form": form,
+        'provinces': Province.objects.all(),
+        'form': form,
     }
-    return render(request, "pages/profile.html", context)
+    return render(request, 'pages/profile.html', context)

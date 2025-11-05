@@ -22,142 +22,142 @@ from common.utils.ping_redis import check_redis
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
-DOT_ENV_DIR = BASE_DIR / "../.env"
+DOT_ENV_DIR = BASE_DIR / '../.env'
 if not load_dotenv(DOT_ENV_DIR):
-    print(f".env file not found: {DOT_ENV_DIR.resolve()}")
+    print(f'.env file not found: {DOT_ENV_DIR.resolve()}')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ["SECRET_KEY"]
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
     # Rest framework
-    "rest_framework",
-    "rest_framework_simplejwt",
-    "rest_framework_simplejwt.token_blacklist",
-    "drf_spectacular",
-    "drf_spectacular_sidecar",
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
     # Project apps
-    "common",
-    "account",
+    'common',
+    'account',
 ]
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = "main.urls"
+ROOT_URLCONF = 'main.urls'
 
 TEMPLATES = [
     {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = "main.wsgi.application"
+WSGI_APPLICATION = 'main.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 POSTGRESQL_DB = {
-    "ENGINE": "django.db.backends.postgresql",
-    "NAME": os.getenv("POSTGRES_DB"),
-    "USER": os.getenv("POSTGRES_USER"),
-    "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-    "HOST": os.getenv("POSTGRES_HOST"),
-    "PORT": os.getenv("POSTGRES_PORT"),
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': os.getenv('POSTGRES_DB'),
+    'USER': os.getenv('POSTGRES_USER'),
+    'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+    'HOST': os.getenv('POSTGRES_HOST'),
+    'PORT': os.getenv('POSTGRES_PORT'),
 }
 
 SQLITE3_DB = {
-    "ENGINE": "django.db.backends.sqlite3",
-    "NAME": BASE_DIR / "../db.sqlite3",
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': BASE_DIR / '../db.sqlite3',
 }
 
 DATABASES = {
-    "default": POSTGRESQL_DB if os.environ["DB_ENGINE"] == POSTGRESQL_DB["ENGINE"] else SQLITE3_DB,
+    'default': POSTGRESQL_DB if os.environ['DB_ENGINE'] == POSTGRESQL_DB['ENGINE'] else SQLITE3_DB,
 }
 
 
 # Redis
 REDIS = {
-    "default": {
-        "HOST": os.getenv("REDIS_HOST"),
-        "PORT": os.getenv("REDIS_PORT"),
-        "PASSWORD": os.getenv("REDIS_PASSWORD"),
+    'default': {
+        'HOST': os.getenv('REDIS_HOST'),
+        'PORT': os.getenv('REDIS_PORT'),
+        'PASSWORD': os.getenv('REDIS_PASSWORD'),
     }
 }
 
-REDIS_URL_PATTERN = "redis://:{password}@{host}:{port}/{db_index}"
+REDIS_URL_PATTERN = 'redis://:{password}@{host}:{port}/{db_index}'
 REDIS_URLS = {
     name: REDIS_URL_PATTERN.format(
-        password=config["PASSWORD"],
-        host=config["HOST"],
-        port=config["PORT"],
-        db_index=config.get("DB_INDEX", 0),
+        password=config['PASSWORD'],
+        host=config['HOST'],
+        port=config['PORT'],
+        db_index=config.get('DB_INDEX', 0),
     )
     for name, config in REDIS.items()
 }
 
-REDIS_READY = check_redis(REDIS_URLS["default"])
+REDIS_READY = check_redis(REDIS_URLS['default'])
 
 # Cache server
 CACHE_REDIS = {
-    "BACKEND": "django.core.cache.backends.redis.RedisCache",
-    "LOCATION": REDIS_URLS["default"],
+    'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+    'LOCATION': REDIS_URLS['default'],
 }
 CACHE_MEMORY = {
-    "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-    "LOCATION": "unique-snowflake",
+    'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    'LOCATION': 'unique-snowflake',
 }
 
-CACHES = {"default": CACHE_REDIS if REDIS_READY else CACHE_MEMORY}
+CACHES = {'default': CACHE_REDIS if REDIS_READY else CACHE_MEMORY}
 
 
 # Set the Session in Cache server
-SESSION_CACHED_DB = "django.contrib.sessions.backends.cached_db"
-SESSION_DB = "django.contrib.sessions.backends.db"
+SESSION_CACHED_DB = 'django.contrib.sessions.backends.cached_db'
+SESSION_DB = 'django.contrib.sessions.backends.db'
 SESSION_ENGINE = SESSION_CACHED_DB if REDIS_READY else SESSION_DB
 
 
 # DynamoDB
 DYNAMO_DB_CONFIG = {
-    "REGION_NAME": os.getenv("REGION_NAME"),
-    "AWS_ACCESS_KEY_ID": os.getenv("AWS_ACCESS_KEY_ID"),
-    "AWS_SECRET_ACCESS_KEY": os.getenv("AWS_SECRET_ACCESS_KEY"),
-    "ENDPOINT_URL": os.getenv("ENDPOINT_URL"),
+    'REGION_NAME': os.getenv('REGION_NAME'),
+    'AWS_ACCESS_KEY_ID': os.getenv('AWS_ACCESS_KEY_ID'),
+    'AWS_SECRET_ACCESS_KEY': os.getenv('AWS_SECRET_ACCESS_KEY'),
+    'ENDPOINT_URL': os.getenv('ENDPOINT_URL'),
 }
 
 
@@ -166,16 +166,16 @@ DYNAMO_DB_CONFIG = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
@@ -183,9 +183,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-us")
+LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', 'en-us')
 
-TIME_ZONE = os.getenv("TIME_ZONE", "UTC")
+TIME_ZONE = os.getenv('TIME_ZONE', 'UTC')
 
 USE_I18N = True
 
@@ -195,48 +195,48 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = os.getenv("STATIC_URL", "static/")
-STATIC_ROOT = BASE_DIR / "../static"
+STATIC_URL = os.getenv('STATIC_URL', 'static/')
+STATIC_ROOT = BASE_DIR / '../static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Location
 VN_LOCATION_RESOURCE_DIR = (
-    BASE_DIR / "../resource/vietnamese-provinces-database/2025-10-28/full_json_generated_data_vn_units.json"
+    BASE_DIR / '../resource/vietnamese-provinces-database/2025-10-28/full_json_generated_data_vn_units.json'
 )
 
 
 # Authentication model
-AUTH_USER_MODEL = "account.User"
+AUTH_USER_MODEL = 'account.User'
 
 
 # Logging config
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "default": {
-            "format": "[%(levelname)s] [%(asctime)s] [%(filename)s:%(lineno)d] %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '[%(levelname)s] [%(asctime)s] [%(filename)s:%(lineno)d] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "default",
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default',
         },
     },
-    "root": {
-        "handlers": ["console"],
-        "level": os.getenv("LOG_LEVEL", "INFO"),
+    'root': {
+        'handlers': ['console'],
+        'level': os.getenv('LOG_LEVEL', 'INFO'),
     },
-    "loggers": {
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": os.getenv("SQL_LOG_LEVEL", "INFO"),
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': os.getenv('SQL_LOG_LEVEL', 'INFO'),
         },
     },
 }
@@ -245,38 +245,38 @@ LOGGING = {
 # Rest framework
 REST_FRAMEWORK = {
     # Pagination
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
     # Filter and search
-    "DEFAULT_FILTER_BACKENDS": [
-        "django_filters.rest_framework.DjangoFilterBackend",
-        "rest_framework.filters.OrderingFilter",
-        "rest_framework.filters.SearchFilter",
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
     ],
     # Swagger
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     # Authentication
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
 
 
 # JWT
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=60),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": True,
-    "USER_ID_CLAIM": "sub",
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=60),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'USER_ID_CLAIM': 'sub',
 }
 
 
 # Swagger
 SPECTACULAR_SETTINGS = {
-    "SWAGGER_UI_DIST": "SIDECAR",
-    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
-    "REDOC_DIST": "SIDECAR",
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
 }

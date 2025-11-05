@@ -11,7 +11,7 @@ def init_location_data(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("account", "0003_alter_user_email"),
+        ('account', '0003_alter_user_email'),
     ]
 
     operations = [

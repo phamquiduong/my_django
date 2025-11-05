@@ -16,7 +16,7 @@ def change_password_view(request: HttpRequest) -> HttpResponse:
     if request.method == HTTPMethod.POST and form.is_valid():
         user = form.save()
         login(request=request, user=user)
-        messages.success(request, "Change password successfully.")
-        return redirect("home")
+        messages.success(request, 'Change password successfully.')
+        return redirect('home')
 
-    return render(request, "pages/change-password.html", {"form": form})
+    return render(request, 'pages/change-password.html', {'form': form})
