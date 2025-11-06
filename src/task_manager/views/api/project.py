@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db.models import Subquery
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
@@ -8,7 +9,10 @@ from rest_framework.response import Response
 from task_manager.constants.project import ProjectRole
 from task_manager.models import Project, ProjectMember
 from task_manager.permissions.project import IsProjectAdmin
-from task_manager.serializers.project import ProjectDetailSerializer, ProjectNewMemberSerializer, ProjectSerializer
+from task_manager.serializers.project import (ProjectDetailSerializer, ProjectNewMemberSerializer, ProjectSerializer,
+                                              ProjectUpdateMemberRole)
+
+User = get_user_model()
 
 
 @extend_schema(tags=['Project'])
@@ -38,18 +42,47 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 @extend_schema(
     tags=['Project'],
-    request=ProjectNewMemberSerializer,
     responses={status.HTTP_200_OK: ProjectDetailSerializer}
 )
-class ProjectMemberView(generics.CreateAPIView):
-    permission_classes = [IsProjectAdmin]
+class ProjectAddMemberView(generics.CreateAPIView):
+    serializer_class = ProjectNewMemberSerializer
+    permission_classes = [IsAuthenticated, IsProjectAdmin]
 
     def create(self, request, *args, **kwargs):
         project_key = kwargs.get('project_key')
         project = get_object_or_404(Project, key=project_key)
 
-        serializer = self.get_serializer(data=request.data, instance=project)
+        serializer = self.get_serializer(data=request.data, project=project)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response(ProjectDetailSerializer(project).data)
+
+
+@extend_schema(tags=['Project'], responses=ProjectDetailSerializer)
+class ProjectMemberView(generics.UpdateAPIView, generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated, IsProjectAdmin]
+    serializer_class = ProjectUpdateMemberRole
+
+    def get_project_member(self, request, *args, **kwargs):  # pylint: disable=W0613
+        project_key = kwargs.get('project_key')
+        project = get_object_or_404(Project, key=project_key)
+
+        member_id = kwargs.get('member_id')
+        member = get_object_or_404(User, id=member_id)
+
+        project_member = get_object_or_404(ProjectMember, project=project, member=member)
+
+        return project, member, project_member
+
+    def update(self, request, *args, **kwargs):
+        project, _, project_member = self.get_project_member(self, request, *args, **kwargs)
+        serializer = self.get_serializer(data=request.data, instance=project_member)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(ProjectDetailSerializer(project).data)
+
+    def delete(self, request, *args, **kwargs):
+        _, _, project_member = self.get_project_member(self, request, *args, **kwargs)
+        project_member.delete()
+        return Response()

@@ -9,3 +9,9 @@ class IsProjectAdmin(BasePermission):
 
     def has_object_permission(self, request, view, obj) -> bool:
         return ProjectMember.objects.filter(project=obj, member=request.user, role=ProjectRole.ADMIN).exists()
+
+    def has_permission(self, request, view):
+        project_key = view.kwargs.get('project_key')
+        return ProjectMember.objects \
+            .filter(project__key=project_key, member=request.user, role=ProjectRole.ADMIN) \
+            .exists()

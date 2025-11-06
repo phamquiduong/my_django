@@ -3,6 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from account.serializers.user import UserSerializer
+from task_manager.constants.project import ProjectRole
 from task_manager.models import Project
 from task_manager.models.project_member import ProjectMember
 
@@ -25,25 +26,37 @@ class ProjectMemberSerializer(serializers.ModelSerializer):
 
 class ProjectNewMemberSerializer(serializers.Serializer):
     member_id = serializers.IntegerField(write_only=True)
+    member: User
 
-    new_member: User
+    def __init__(self, *args, project: Project | None = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.project = project
 
     def validate_member_id(self, member_id):
         try:
-            self.new_member = User.objects.get(id=member_id)
+            self.member = User.objects.get(id=member_id)
         except User.DoesNotExist as exc:
             raise serializers.ValidationError('Member ID does not exist') from exc
 
-        if ProjectMember.objects.filter(project=self.instance, member=self.new_member).exists():
+        if ProjectMember.objects.filter(project=self.project, member=self.member).exists():
             raise serializers.ValidationError('The member already exist')
 
         return member_id
 
-    def save(self, **kwargs):
-        return ProjectMember.objects.create(project=self.instance, member=self.new_member)
-
     def update(self, instance, validated_data):
         pass
+
+    def create(self, validated_data):
+        return ProjectMember.objects.create(project=self.project, member=self.member)
+
+
+class ProjectUpdateMemberRole(serializers.Serializer):
+    role = serializers.ChoiceField(choices=ProjectRole.choices())
+
+    def update(self, instance, validated_data):
+        instance.role = validated_data['role']
+        instance.save(update_fields=['role'])
+        return instance
 
     def create(self, validated_data):
         pass

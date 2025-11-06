@@ -56,4 +56,4 @@ class User(AbstractUser, TimestampMixin):
     REQUIRED_FIELDS = []
 
     def __str__(self) -> str:
-        return f'{self.username}'
+        return f'<User: {self.username}>'
