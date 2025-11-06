@@ -8,6 +8,12 @@ from account.serializers.ward import WardSerializer
 User = get_user_model()
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'display_name', 'phone_number', 'email']
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
     province_detail = ProvinceSerializer(source='province', read_only=True)
     ward_detail = WardSerializer(source='ward', read_only=True)
