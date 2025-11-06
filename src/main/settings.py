@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     # Project apps
     'common',
     'account',
+    'task_manager',
 ]
 
 MIDDLEWARE = [
