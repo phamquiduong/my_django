@@ -25,6 +25,16 @@ class UserSerializer(serializers.ModelSerializer):
             'date_joined': {'read_only': True},
         }
 
+    def validate_ward(self, ward):
+        province_id = self.initial_data.get('province')  # type:ignore
+        if ward and province_id and str(ward.province_id) != str(province_id):
+            raise serializers.ValidationError('Ward does not belong to the selected province')
+        return ward
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
 
 class UserDetailSerializer(UserSerializer):
     province_detail = ProvinceSerializer(source='province', read_only=True)
@@ -47,20 +57,21 @@ class UserRegisterSerializer(UserSerializer):
             'is_active': {'read_only': True},
         })
 
-    def validate_ward(self, ward):
-        province_id = self.initial_data.get('province')  # type:ignore
-        if ward and province_id and str(ward.province_id) != str(province_id):
-            raise serializers.ValidationError('Ward does not belong to the selected province')
-        return ward
-
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
-
 
 class UserUpdateByAdminSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         exclude = ('password', *UserSerializer.Meta.exclude)
+
+
+class UserUpdateProfileSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        exclude = ('password', *UserSerializer.Meta.exclude)
+        extra_kwargs = UserSerializer.Meta.extra_kwargs.copy()
+        extra_kwargs.update({
+            'is_superuser': {'read_only': True},
+            'is_staff': {'read_only': True},
+            'is_active': {'read_only': True},
+        })
 
 
 class ChangePasswordSerializer(serializers.Serializer):
