@@ -1,5 +1,5 @@
 [MASTER]
 max-line-length=120
-disable=C0114,C0115,C0116,E0401,E1101,R0901,R0903,W0718
+disable=C0114,C0115,C0116,E0401,E1101,E0611,R0901,R0903,W0718
 ignore=manage.py,asgi.py,wsgi.py
 ignore-paths=.*migrations/.*

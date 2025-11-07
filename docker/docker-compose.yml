@@ -45,6 +45,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ./postgresql/data:/var/lib/postgresql/data
+    restart: always
 
   redis:
     image: redis:8.2.2
@@ -63,6 +64,7 @@ services:
       - RI_REDIS_HOST=redis
       - RI_REDIS_PORT=6379
       - RI_REDIS_PASSWORD=${REDIS_PASSWORD}
+    restart: always
 
   dynamodb:
     image: amazon/dynamodb-local:3.1.0
@@ -92,7 +94,8 @@ services:
 
   mailhog:
     image: mailhog/mailhog:v1.0.1
+    expose:
+      - 1025
     ports:
-      - ${MAILHOG_SMTP_PORT}:1025
       - ${MAILHOG_HTTP_PORT}:8025
     restart: always

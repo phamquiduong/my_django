@@ -62,6 +62,7 @@ class DynamoDBService:
         table_name: str,
         query: dict[str, Any],
         expression: str,
+        expression_name: dict[str, str],
         expression_value: dict[str, Any],
         return_value: Literal['NONE', 'ALL_OLD', 'UPDATED_OLD', 'ALL_NEW', 'UPDATED_NEW'] = 'UPDATED_NEW'
     ) -> dict:
@@ -74,6 +75,7 @@ class DynamoDBService:
         response = table.update_item(
             Key=query,
             UpdateExpression=expression,
+            ExpressionAttributeNames=expression_name,
             ExpressionAttributeValues=expression_value,
             ReturnValues=return_value,
         )

@@ -105,3 +105,13 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.set_password(self.validated_data['new_password'])  # type:ignore
         user.save()
         return user
+
+
+class SendVerifyEmail(serializers.Serializer):
+    detail = serializers.CharField(read_only=True, default='Sent email verified')
+
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
