@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Subquery
+from django.db.models import Count, OuterRef, Subquery
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, status, viewsets
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from common.constants.drf_action import DRFAction
@@ -32,13 +32,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         projects_of_auth_user = ProjectMember.objects.filter(member=self.request.user).values('project')
-        return Project.objects.filter(id__in=Subquery(projects_of_auth_user))
+        members_counter = ProjectMember.objects \
+            .filter(project=OuterRef('id')) \
+            .values('project') \
+            .annotate(total=Count('*')) \
+            .values('total')
+        return Project.objects \
+            .filter(id__in=Subquery(projects_of_auth_user)) \
+            .annotate(members_counter=Subquery(members_counter))
 
     def get_permissions(self):
-        permission_classes: list = [IsAuthenticated()]
-        if self.request.method not in SAFE_METHODS:
-            permission_classes.append(IsProjectAdmin())
-        return permission_classes
+        match self.action:
+            case DRFAction.UPDATE | DRFAction.PARTIAL_UPDATE | DRFAction.DESTROY:
+                return [IsAuthenticated(), IsProjectAdmin()]
+            case _:
+                return [IsAuthenticated()]
 
 
 @extend_schema(

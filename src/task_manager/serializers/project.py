@@ -11,6 +11,8 @@ User = get_user_model()
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    members_counter = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Project
         fields = '__all__'
