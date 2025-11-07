@@ -67,3 +67,10 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ../static:/app/static
     restart: always
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - ${MAILHOG_SMTP_PORT}:1025
+      - ${MAILHOG_HTTP_PORT}:8025
+    restart: unless-stopped
