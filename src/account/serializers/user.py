@@ -11,28 +11,41 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'display_name', 'phone_number', 'email']
+        exclude = ('groups', 'user_permissions')
+        extra_kwargs = {
+            # Hide password field
+            'password': {'write_only': True},
+
+            # Not modify verified info
+            'phone_number_verified': {'read_only': True},
+            'email_verified': {'read_only': True},
+
+            # Auto generate datetime
+            'last_login': {'read_only': True},
+            'date_joined': {'read_only': True},
+        }
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
+class UserDetailSerializer(UserSerializer):
     province_detail = ProvinceSerializer(source='province', read_only=True)
     ward_detail = WardSerializer(source='ward', read_only=True)
 
-    class Meta:
-        model = User
-        extra_kwargs = {
-            'password': {'write_only': True},
+    class Meta(UserSerializer.Meta):
+        extra_kwargs = UserSerializer.Meta.extra_kwargs.copy()
+        extra_kwargs.update({
             'province': {'write_only': True},
             'ward': {'write_only': True},
-            'last_login': {'read_only': True},
+        })
+
+
+class UserRegisterSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        extra_kwargs = UserSerializer.Meta.extra_kwargs.copy()
+        extra_kwargs.update({
             'is_superuser': {'read_only': True},
             'is_staff': {'read_only': True},
             'is_active': {'read_only': True},
-            'date_joined': {'read_only': True},
-            'phone_number_verified': {'read_only': True},
-            'email_verified': {'read_only': True},
-        }
-        exclude = ('groups', 'user_permissions')
+        })
 
     def validate_ward(self, ward):
         province_id = self.initial_data.get('province')  # type:ignore
@@ -45,15 +58,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserUpdateByAdminSerializer(UserCreateSerializer):
-    class Meta(UserCreateSerializer.Meta):
-        extra_kwargs = {
-            'province': {'write_only': True},
-            'ward': {'write_only': True},
-            'last_login': {'read_only': True},
-            'date_joined': {'read_only': True},
-        }
-        exclude = ('password', 'groups', 'user_permissions')
+class UserUpdateByAdminSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        exclude = ('password', *UserSerializer.Meta.exclude)
 
 
 class ChangePasswordSerializer(serializers.Serializer):
