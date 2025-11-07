@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'common',
     'account',
     'task_manager',
+    'mail',
 ]
 
 MIDDLEWARE = [
