@@ -60,6 +60,9 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 
+    # Celery
+    'django_celery_results',
+
     # Project apps
     'common',
     'account',
@@ -295,3 +298,8 @@ SPECTACULAR_SETTINGS = {
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'REDOC_DIST': 'SIDECAR',
 }
+
+
+# Celery
+CELERY_BROKER_URL = REDIS_URLS['default']
+CELERY_RESULT_BACKEND = 'django-db'

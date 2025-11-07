@@ -19,3 +19,8 @@ python-dotenv==1.1.1
 # Redis
 redis==7.0.1
 hiredis==3.3.0
+
+# Celery
+celery==5.5.3
+django-celery-results==2.6.0
+flower==2.0.1
