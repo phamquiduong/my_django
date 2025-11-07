@@ -6,6 +6,7 @@ from rest_framework import generics, status, viewsets
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
+from common.constants.drf_action import DRFAction
 from task_manager.constants.project import ProjectRole
 from task_manager.models import Project, ProjectMember
 from task_manager.permissions.project import IsProjectAdmin
@@ -25,7 +26,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         ProjectMember.objects.create(project=project, member=self.request.user, role=ProjectRole.ADMIN)
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action == DRFAction.RETRIEVE:
             return ProjectDetailSerializer
         return ProjectSerializer
 

@@ -1,15 +1,17 @@
+from enum import StrEnum
 from http import HTTPMethod
 
 from django.contrib.auth import get_user_model
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from account.serializers.user import (ChangePasswordSerializer, UserDetailSerializer, UserRegisterSerializer,
                                       UserSerializer, UserUpdateByAdminSerializer, UserUpdateProfileSerializer)
+from common.constants.drf_action import DRFAction
 
 User = get_user_model()
 
@@ -25,25 +27,34 @@ class UserViewSet(viewsets.ModelViewSet):
 
     search_fields = ('username', 'email')
 
+    class Action(StrEnum):
+        ME = 'me'
+        PROFILE = 'profile'
+        CHANGE_PASSWORD = 'change_password'
+
     def get_permissions(self):
-        if self.action in ['me', 'change_password', 'profile']:
-            return [IsAuthenticated()]
-        if self.request.method not in SAFE_METHODS:
-            return [IsAdminUser()]
-        return [AllowAny()]
+        match self.action:
+            case self.Action.ME | self.Action.PROFILE | self.Action.CHANGE_PASSWORD:
+                return [IsAuthenticated()]
+            case DRFAction.UPDATE | DRFAction.PARTIAL_UPDATE | DRFAction.DESTROY:
+                return [IsAdminUser()]
+            case _:
+                return [AllowAny()]
 
     def get_serializer_class(self):
-        if self.action == 'change_password':
-            return ChangePasswordSerializer
-        if self.action == 'create':
-            return UserRegisterSerializer
-        if self.action == 'update':
-            return UserUpdateByAdminSerializer
-        if self.action in ['retrieve', 'me']:
-            return UserDetailSerializer
-        if self.action == 'profile':
-            return UserUpdateProfileSerializer
-        return UserSerializer
+        match self.action:
+            case DRFAction.CREATE:
+                return UserRegisterSerializer
+            case DRFAction.UPDATE | DRFAction.PARTIAL_UPDATE:
+                return UserUpdateByAdminSerializer
+            case DRFAction.RETRIEVE | self.Action.ME:
+                return UserDetailSerializer
+            case self.Action.CHANGE_PASSWORD:
+                return ChangePasswordSerializer
+            case self.Action.PROFILE:
+                return UserUpdateProfileSerializer
+            case _:
+                return UserSerializer
 
     @action(detail=False, methods=[HTTPMethod.GET])
     def me(self, request):
