@@ -2,7 +2,8 @@ import logging
 import traceback
 
 from celery import shared_task
-from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
+from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
 from common.services.dynamodb import get_dynamodb_service
@@ -21,10 +22,15 @@ def send_email_async_task(self):
         email_log = MailLog(**response)
         email_log.update_status(dynamodb_service, status=MailLogStatus.SENDING)
 
-    html_content = render_to_string(f'mail/{email_log.template_name}.html', email_log.context)
+    html_content = render_to_string(f'mail/{email_log.template_name}.html', context=email_log.context)
 
-    msg = EmailMultiAlternatives(subject=email_log.subject, to=email_log.to)
-    msg.attach_alternative(html_content, 'text/html')
+    msg = EmailMessage(
+        subject=email_log.subject,
+        body=html_content,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=email_log.to,
+    )
+    msg.content_subtype = 'html'
 
     try:
         msg.send()

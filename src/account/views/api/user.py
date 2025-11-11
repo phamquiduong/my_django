@@ -102,4 +102,4 @@ class UserViewSet(viewsets.ModelViewSet):
 
         send_email_async_task.apply_async(task_id=mail_log.task_id)  # type:ignore
 
-        return Response({'detail': 'Sent email verify'})
+        return Response({'detail': 'Please check your inbox. If you don\'t receive any email, please contact to Admin'})

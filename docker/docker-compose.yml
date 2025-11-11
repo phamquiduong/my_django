@@ -92,10 +92,10 @@ services:
       - ../static:/app/static
     restart: always
 
-  mailhog:
-    image: mailhog/mailhog:v1.0.1
+  mail-server:
+    image: maildev/maildev:2.2.1
     expose:
       - 1025
     ports:
-      - ${MAILHOG_HTTP_PORT}:8025
+      - ${MAIL_SERVER_UI_PORT}:1080
     restart: always
