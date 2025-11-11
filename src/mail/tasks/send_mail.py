@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 from celery import shared_task
 from django.core.mail import EmailMultiAlternatives
@@ -29,7 +30,8 @@ def send_email_async_task(self):
         msg.send()
     except Exception:
         with get_dynamodb_service() as dynamodb_service:
-            email_log.update_status(dynamodb_service, status=MailLogStatus.FAILED)
+            email_log.set_error(dynamodb_service, detail=traceback.format_exc())
+        raise
 
     with get_dynamodb_service() as dynamodb_service:
         email_log.update_status(dynamodb_service, status=MailLogStatus.SENT)

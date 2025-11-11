@@ -21,6 +21,7 @@ class MailLog:
 
     task_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     status: MailLogStatus = MailLogStatus.PENDING
+    error: str | None = None
 
     def create(self, dynamodb_service: DynamoDBService):
         dynamodb_service.insert(table_name=self.table_name, data=asdict(self))
@@ -32,5 +33,21 @@ class MailLog:
             expression='SET #s = :new_status',
             expression_name={'#s': 'status'},
             expression_value={':new_status': status}
+        )
+        logger.info('Status updated: %s', response)
+
+    def set_error(self,  dynamodb_service: DynamoDBService, detail: str):
+        response = dynamodb_service.update(
+            table_name=self.table_name,
+            query={'task_id': self.task_id},
+            expression='SET #s = :new_status, #err = :detail',
+            expression_name={
+                '#s': 'status',
+                '#err': 'error',
+            },
+            expression_value={
+                ':new_status': MailLogStatus.FAILED,
+                ':detail': detail
+            }
         )
         logger.info('Status updated: %s', response)
