@@ -8,7 +8,7 @@ from mail.utils.mail_log import delete_after_factory, time_now_factory
 
 
 @dataclass
-class MailLog:
+class MailLog:  # pylint: disable=R0902
     table_name: ClassVar[str] = 'mail_log'
 
     to: list[str]

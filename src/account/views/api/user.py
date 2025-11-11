@@ -1,7 +1,9 @@
 from enum import StrEnum
 from http import HTTPMethod
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -13,6 +15,7 @@ from rest_framework.response import Response
 from account.serializers.user import (ChangePasswordSerializer, SendVerifyEmail, UserDetailSerializer,
                                       UserRegisterSerializer, UserSerializer, UserUpdateByAdminSerializer,
                                       UserUpdateProfileSerializer)
+from account.utils.generate_otp import generate_otp
 from common.constants.drf_action import DRFAction
 from common.services.dynamodb import get_dynamodb_service
 from mail.schemas.mail import MailLog
@@ -91,10 +94,19 @@ class UserViewSet(viewsets.ModelViewSet):
         if not request.user.email:
             raise ValidationError('User does not include email')
 
+        if cache.get(f'verify-email-otp:{request.user.id}') is not None:
+            raise ValidationError('An email sent. Please check your inbox')
+
+        otp = generate_otp()
+        cache.set(f'verify-email-otp:{request.user.id}', otp, timeout=settings.OTP_TIMEOUT)
+
         mail_log = MailLog(
             to=[request.user.email],
             subject='Verify your email',
             template_name='verify_email',
+            context={
+                'otp': otp,
+            }
         )
 
         with get_dynamodb_service() as dynamodb_service:
@@ -102,4 +114,4 @@ class UserViewSet(viewsets.ModelViewSet):
 
         send_email_async_task.apply_async(task_id=mail_log.task_id)  # type:ignore
 
-        return Response({'detail': 'Please check your inbox. If you don\'t receive any email, please contact to Admin'})
+        return Response({'detail': 'Verify email sent. Please check your inbox'})
