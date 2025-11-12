@@ -37,7 +37,9 @@ def send_email_async_task(self):
     except Exception:
         with get_dynamodb_service() as dynamodb_service:
             email_log.set_error(dynamodb_service, detail=traceback.format_exc())
+            email_log.clear_context(dynamodb_service)
         raise
 
     with get_dynamodb_service() as dynamodb_service:
         email_log.update_status(dynamodb_service, status=MailLogStatus.SENT)
+        email_log.clear_context(dynamodb_service)

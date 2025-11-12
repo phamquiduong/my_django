@@ -44,7 +44,7 @@ class MailLog:  # pylint: disable=R0902
             }
         )
 
-    def set_error(self,  dynamodb_service: DynamoDBService, detail: str):
+    def set_error(self, dynamodb_service: DynamoDBService, detail: str):
         dynamodb_service.update(
             table_name=self.table_name,
             query={'task_id': self.task_id},
@@ -58,5 +58,18 @@ class MailLog:  # pylint: disable=R0902
                 ':new_status': MailLogStatus.FAILED,
                 ':detail': detail,
                 ':time_now': time_now_factory(),
+            }
+        )
+
+    def clear_context(self, dynamodb_service: DynamoDBService):
+        dynamodb_service.update(
+            table_name=self.table_name,
+            query={'task_id': self.task_id},
+            expression='SET #context = :null_data',
+            expression_name={
+                '#context': 'context',
+            },
+            expression_value={
+                ':null_data': None,
             }
         )
