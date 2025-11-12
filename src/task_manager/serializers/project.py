@@ -28,22 +28,29 @@ class ProjectMemberSerializer(serializers.ModelSerializer):
 
 class ProjectNewMemberSerializer(serializers.Serializer):
     member_id = serializers.IntegerField(write_only=True)
-    member: User
-
-    def __init__(self, *args, project: Project | None = None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.project = project
+    member: User    # type:ignore
+    project: Project
 
     def validate_member_id(self, member_id):
         try:
             self.member = User.objects.get(id=member_id)
         except User.DoesNotExist as exc:
-            raise serializers.ValidationError('Member ID does not exist') from exc
+            raise serializers.ValidationError('Member does not exist') from exc
 
         if ProjectMember.objects.filter(project=self.project, member=self.member).exists():
-            raise serializers.ValidationError('The member already exist')
+            raise serializers.ValidationError('The member already in project')
 
         return member_id
+
+    def validate(self, attrs):
+        project_key = self.context['project_key']
+
+        try:
+            self.project = Project.objects.get(key=project_key)
+        except Project.DoesNotExist as exc:
+            raise serializers.ValidationError('Project does not exist') from exc
+
+        return attrs
 
     def update(self, instance, validated_data):
         pass

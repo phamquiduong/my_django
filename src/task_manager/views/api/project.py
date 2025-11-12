@@ -49,23 +49,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 return [IsAuthenticated()]
 
 
-@extend_schema(
-    tags=['Project'],
-    responses={status.HTTP_200_OK: ProjectDetailSerializer}
-)
+@extend_schema(tags=['Project'], responses={status.HTTP_200_OK: ProjectDetailSerializer})
 class ProjectAddMemberView(generics.CreateAPIView):
     serializer_class = ProjectNewMemberSerializer
     permission_classes = [IsAuthenticated, IsProjectAdmin]
 
     def create(self, request, *args, **kwargs):
-        project_key = kwargs.get('project_key')
-        project = get_object_or_404(Project, key=project_key)
-
-        serializer = self.get_serializer(data=request.data, project=project)
+        serializer = self.get_serializer(data=request.data, context={'project_key': kwargs['project_key']})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
-        return Response(ProjectDetailSerializer(project).data)
+        return Response(ProjectDetailSerializer(serializer.project).data)
 
 
 @extend_schema(tags=['Project'], responses=ProjectDetailSerializer)
