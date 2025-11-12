@@ -1,25 +1,18 @@
 from enum import StrEnum
 from http import HTTPMethod
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from drf_spectacular.utils import extend_schema
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from account.serializers.user import (ChangePasswordSerializer, SendVerifyEmail, UserDetailSerializer,
                                       UserRegisterSerializer, UserSerializer, UserUpdateByAdminSerializer,
-                                      UserUpdateProfileSerializer)
-from account.utils.generate_otp import generate_otp
+                                      UserUpdateProfileSerializer, VerifyEmailByCode)
 from common.constants.drf_action import DRFAction
-from common.services.dynamodb import get_dynamodb_service
-from mail.schemas.mail import MailLog
-from mail.tasks.send_mail import send_email_async_task
 
 User = get_user_model()
 
@@ -40,10 +33,12 @@ class UserViewSet(viewsets.ModelViewSet):
         PROFILE = 'profile'
         CHANGE_PASSWORD = 'change_password'
         SEND_VERIFY_EMAIL = 'send_verify_email'
+        VERIFY_EMAIL_BY_CODE = 'verify_email_by_code'
 
     def get_permissions(self):
         match self.action:
-            case self.Action.ME | self.Action.PROFILE | self.Action.CHANGE_PASSWORD | self.Action.SEND_VERIFY_EMAIL:
+            case (self.Action.ME | self.Action.PROFILE | self.Action.CHANGE_PASSWORD |
+                  self.Action.SEND_VERIFY_EMAIL | self.Action.VERIFY_EMAIL_BY_CODE):
                 return [IsAuthenticated()]
             case DRFAction.UPDATE | DRFAction.PARTIAL_UPDATE | DRFAction.DESTROY:
                 return [IsAdminUser()]
@@ -64,6 +59,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 return UserUpdateProfileSerializer
             case self.Action.SEND_VERIFY_EMAIL:
                 return SendVerifyEmail
+            case self.Action.VERIFY_EMAIL_BY_CODE:
+                return VerifyEmailByCode
             case _:
                 return UserSerializer
 
@@ -86,32 +83,17 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.save()
         return Response({'detail': 'Password changed successfully'})
 
+    @extend_schema(responses={status.HTTP_202_ACCEPTED: SendVerifyEmail})
     @action(detail=False, url_path='send-verify-email', methods=[HTTPMethod.POST])
     def send_verify_email(self, request: Request):
-        if request.user.email_verified is True:
-            raise ValidationError('User email is verified')
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': 'Email queued'}, status=status.HTTP_202_ACCEPTED)
 
-        if not request.user.email:
-            raise ValidationError('User does not include email')
-
-        if cache.get(f'verify-email-otp:{request.user.id}') is not None:
-            raise ValidationError('An email sent. Please check your inbox')
-
-        otp = generate_otp()
-        cache.set(f'verify-email-otp:{request.user.id}', otp, timeout=settings.OTP_TIMEOUT)
-
-        mail_log = MailLog(
-            to=[request.user.email],
-            subject='Verify your email',
-            template_name='verify_email',
-            context={
-                'otp': otp,
-            }
-        )
-
-        with get_dynamodb_service() as dynamodb_service:
-            mail_log.create(dynamodb_service)
-
-        send_email_async_task.apply_async(task_id=mail_log.task_id)  # type:ignore
-
-        return Response({'detail': 'Verify email sent. Please check your inbox'})
+    @action(detail=False, url_path='verify-email-by-code', methods=[HTTPMethod.PATCH])
+    def verify_email_by_code(self, request: Request):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': 'Email verified'})

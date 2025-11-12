@@ -1,9 +1,15 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.core.cache import cache
 from rest_framework import serializers
 
 from account.serializers.province import ProvinceSerializer
 from account.serializers.ward import WardSerializer
+from account.utils.generate_otp import generate_otp
+from common.services.dynamodb import get_dynamodb_service
+from mail.schemas.mail import MailLog
+from mail.tasks.send_mail import send_email_async_task
 
 User = get_user_model()
 
@@ -108,10 +114,70 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class SendVerifyEmail(serializers.Serializer):
-    detail = serializers.CharField(read_only=True, default='Sent email verified')
+    detail = serializers.CharField(default='Email queued', read_only=True)
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+
+        if user.email_verified is True:
+            raise serializers.ValidationError('User email is verified')
+
+        if not user.email:
+            raise serializers.ValidationError('User does not include email')
+
+        if cache.get(f'verify-email-otp:{user.id}') is not None:
+            raise serializers.ValidationError('An email sent. Please check your inbox')
+
+        return attrs
 
     def create(self, validated_data):
+        user = self.context['request'].user
+
+        otp = generate_otp()
+        cache.set(f'verify-email-otp:{user.id}', otp, timeout=settings.OTP_TIMEOUT)
+
+        mail_log = MailLog(
+            to=[user.email],
+            subject='Verify your email',
+            template_name='verify_email',
+            context={
+                'otp': otp,
+            }
+        )
+
+        with get_dynamodb_service() as dynamodb_service:
+            mail_log.create(dynamodb_service)
+
+        send_email_async_task.apply_async(task_id=mail_log.task_id)  # type:ignore
+
+        return mail_log
+
+    def update(self, instance, validated_data):
         pass
+
+
+class VerifyEmailByCode(serializers.Serializer):
+    detail = serializers.CharField(default='Email verified', read_only=True)
+
+    code = serializers.RegexField(regex=r'\d*', max_length=6, min_length=6, write_only=True)
+
+    def validate_code(self, code: str) -> str:
+        user = self.context['request'].user
+        user_code = cache.get(f'verify-email-otp:{user.id}')
+
+        if user_code != code:
+            raise serializers.ValidationError('Invalid verify code')
+
+        return code
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        user.email_verified = True
+        user.save(update_fields=['email_verified'])
+
+        cache.delete(f'verify-email-otp:{user.id}')
+
+        return user
 
     def update(self, instance, validated_data):
         pass
