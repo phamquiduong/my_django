@@ -19,14 +19,10 @@ echo ==================
 echo Building and starting all docker services
 docker-compose up --build -d
 
-@REM Wait DB starting up
-echo ==================
-docker-compose exec django python manage.py wait_for_db
-
 @REM Migrate
 echo ==================
 echo Starting run migrate database
-docker-compose exec django python manage.py migrate
+docker-compose exec django bash -c "python manage.py wait_for_db && python manage.py migrate"
 
 @REM Collect static files
 echo ==================
