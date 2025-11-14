@@ -317,4 +317,4 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 MAIL_LOG_EXPIRED = timedelta(days=60)
 
-OTP_TIMEOUT = 10*60  # 10 minutes
+VERIFY_EMAIL_TIMEOUT = 10*60  # 10 minutes

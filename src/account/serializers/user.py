@@ -4,9 +4,11 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.cache import cache
 from rest_framework import serializers
 
+from account.constants.verify_email import VERIFY_EMAIL_REDIS_KEY, VerifyEmailType
 from account.serializers.province import ProvinceSerializer
 from account.serializers.ward import WardSerializer
 from account.utils.generate_otp import generate_otp
+from account.utils.generate_secret import generate_token
 from common.services.dynamodb import get_dynamodb_service
 from mail.schemas.mail import MailLog
 from mail.tasks.send_mail import send_email_async_task
@@ -116,6 +118,10 @@ class ChangePasswordSerializer(serializers.Serializer):
 class SendVerifyEmail(serializers.Serializer):
     detail = serializers.CharField(default='Email queued', read_only=True)
 
+    verify_type = serializers.ChoiceField(
+        choices=VerifyEmailType.choices(), default=VerifyEmailType.OTP, write_only=True
+    )
+
     def validate(self, attrs):
         user = self.context['request'].user
 
@@ -125,25 +131,19 @@ class SendVerifyEmail(serializers.Serializer):
         if not user.email:
             raise serializers.ValidationError('User does not include email')
 
-        if cache.get(f'verify-email-otp:{user.id}') is not None:
+        if cache.get(VERIFY_EMAIL_REDIS_KEY.format(user_id=user.id)) is not None:
             raise serializers.ValidationError('An email sent. Please check your inbox')
 
         return attrs
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        verify_type = validated_data['verify_type']
 
-        otp = generate_otp()
-        cache.set(f'verify-email-otp:{user.id}', otp, timeout=settings.OTP_TIMEOUT)
-
-        mail_log = MailLog(
-            to=[user.email],
-            subject='Verify your email',
-            template_name='verify_email',
-            context={
-                'otp': otp,
-            }
-        )
+        match verify_type:
+            case VerifyEmailType.OTP:
+                mail_log = self._create_mail_log_otp()
+            case VerifyEmailType.TOKEN:
+                mail_log = self._create_mail_log_token()
 
         with get_dynamodb_service() as dynamodb_service:
             mail_log.create(dynamodb_service)
@@ -152,30 +152,71 @@ class SendVerifyEmail(serializers.Serializer):
 
         return mail_log
 
+    def _create_mail_log_otp(self):
+        user = self.context['request'].user
+        otp = generate_otp()
+
+        cache.set(VERIFY_EMAIL_REDIS_KEY.format(user_id=user.id), otp, timeout=settings.VERIFY_EMAIL_TIMEOUT)
+
+        return MailLog(
+            to=[user.email],
+            subject='Verify your email',
+            template_name='verify_email_otp',
+            context={'otp': otp}
+        )
+
+    def _create_mail_log_token(self):
+        user = self.context['request'].user
+        token = generate_token()
+
+        cache.set(VERIFY_EMAIL_REDIS_KEY.format(user_id=user.id), token, timeout=settings.VERIFY_EMAIL_TIMEOUT)
+
+        return MailLog(
+            to=[user.email],
+            subject='Verify your email',
+            template_name='verify_email_token',
+            context={'redirect_url': 'http://example.com', 'token': token}
+        )
+
     def update(self, instance, validated_data):
         pass
 
 
-class VerifyEmailByCode(serializers.Serializer):
+class VerifyEmail(serializers.Serializer):
     detail = serializers.CharField(default='Email verified', read_only=True)
 
-    code = serializers.RegexField(regex=r'\d*', max_length=6, min_length=6, write_only=True)
+    code = serializers.RegexField(regex=r'\d*', max_length=6, min_length=6, write_only=True, required=False)
+    token = serializers.CharField(write_only=True, required=False)
 
     def validate_code(self, code: str) -> str:
         user = self.context['request'].user
-        user_code = cache.get(f'verify-email-otp:{user.id}')
+        verify_code = cache.get(VERIFY_EMAIL_REDIS_KEY.format(user_id=user.id))
 
-        if user_code != code:
+        if verify_code != code:
             raise serializers.ValidationError('Invalid verify code')
 
         return code
+
+    def validate_token(self, token: str) -> str:
+        user = self.context['request'].user
+        verify_token = cache.get(VERIFY_EMAIL_REDIS_KEY.format(user_id=user.id))
+
+        if verify_token != token:
+            raise serializers.ValidationError('Invalid verify token')
+
+        return token
+
+    def validate(self, attrs):
+        if not attrs.get('code') and not attrs.get('token'):
+            raise serializers.ValidationError('Provide verify secret data')
+        return attrs
 
     def create(self, validated_data):
         user = self.context['request'].user
         user.email_verified = True
         user.save(update_fields=['email_verified'])
 
-        cache.delete(f'verify-email-otp:{user.id}')
+        cache.delete(VERIFY_EMAIL_REDIS_KEY.format(user_id=user.id))
 
         return user
 

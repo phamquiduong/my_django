@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from account.serializers.user import (ChangePasswordSerializer, SendVerifyEmail, UserDetailSerializer,
                                       UserRegisterSerializer, UserSerializer, UserUpdateByAdminSerializer,
-                                      UserUpdateProfileSerializer, VerifyEmailByCode)
+                                      UserUpdateProfileSerializer, VerifyEmail)
 from common.constants.drf_action import DRFAction
 
 User = get_user_model()
@@ -33,12 +33,12 @@ class UserViewSet(viewsets.ModelViewSet):
         PROFILE = 'profile'
         CHANGE_PASSWORD = 'change_password'
         SEND_VERIFY_EMAIL = 'send_verify_email'
-        VERIFY_EMAIL_BY_CODE = 'verify_email_by_code'
+        VERIFY_EMAIL = 'verify_email'
 
     def get_permissions(self):
         match self.action:
             case (self.Action.ME | self.Action.PROFILE | self.Action.CHANGE_PASSWORD |
-                  self.Action.SEND_VERIFY_EMAIL | self.Action.VERIFY_EMAIL_BY_CODE):
+                  self.Action.SEND_VERIFY_EMAIL | self.Action.VERIFY_EMAIL):
                 return [IsAuthenticated()]
             case DRFAction.UPDATE | DRFAction.PARTIAL_UPDATE | DRFAction.DESTROY:
                 return [IsAdminUser()]
@@ -59,8 +59,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 return UserUpdateProfileSerializer
             case self.Action.SEND_VERIFY_EMAIL:
                 return SendVerifyEmail
-            case self.Action.VERIFY_EMAIL_BY_CODE:
-                return VerifyEmailByCode
+            case self.Action.VERIFY_EMAIL:
+                return VerifyEmail
             case _:
                 return UserSerializer
 
@@ -81,7 +81,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'detail': 'Password changed successfully'})
+        return Response(serializer.data)
 
     @extend_schema(responses={status.HTTP_202_ACCEPTED: SendVerifyEmail})
     @action(detail=False, url_path='send-verify-email', methods=[HTTPMethod.POST])
@@ -89,11 +89,11 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'detail': 'Email queued'}, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
-    @action(detail=False, url_path='verify-email-by-code', methods=[HTTPMethod.PATCH])
-    def verify_email_by_code(self, request: Request):
+    @action(detail=False, url_path='verify-email', methods=[HTTPMethod.PATCH])
+    def verify_email(self, request: Request):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'detail': 'Email verified'})
+        return Response(serializer.data)
