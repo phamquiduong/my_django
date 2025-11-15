@@ -3,6 +3,7 @@
 @REM Install requirements
 echo ==================
 echo Install Python packages
+python.exe -m pip install --upgrade pip
 pip install -r requirements.txt
 
 @REM Create django environment file if not exists
