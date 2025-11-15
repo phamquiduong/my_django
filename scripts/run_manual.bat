@@ -1,19 +1,25 @@
 @echo off
 
 @REM Install requirements
+echo ==================
+echo Install Python packages
 pip install -r requirements.txt
-cls
 
-@REM Create .env file if not exists
+@REM Create django environment file if not exists
 IF NOT EXIST .env (
+    echo ==================
     echo .env file not found. Copying from .env.example...
-    copy .\docker\.env.example .env
+    copy .env.example .env
 )
 
 cd src
 
 @REM Migrate
+echo ==================
+echo Starting run migrate database
 python manage.py migrate
 
 @REM Run server at port 80. Visit http://localhost
+echo ==================
+echo Running server
 python manage.py runserver 0.0.0.0:80

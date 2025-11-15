@@ -1,8 +1,15 @@
 @echo off
 
+@REM Create django environment file if not exists
+IF NOT EXIST .env (
+    echo ==================
+    echo .env file not found. Copying from .env.example...
+    copy .env.example .env
+)
+
 cd docker
 
-@REM Create .env file if not exists
+@REM Create docker environment file if not exists
 IF NOT EXIST .env (
     echo ==================
     echo .env file not found. Copying from .env.example...
