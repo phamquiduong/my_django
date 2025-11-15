@@ -31,5 +31,13 @@ celery -A main worker -n email@%h -l INFO -Q email
 
 <br>
 
+## Note
+You should install stubs for "upgrade" the Pylance in VScode
+```bash
+pip install django-stubs djangorestframework-stubs
+```
+
+<br>
+
 ## Reference
 - [The VietNam provinces database](https://github.com/thanglequoc/vietnamese-provinces-database)
