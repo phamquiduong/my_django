@@ -12,7 +12,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--max-retries', type=int, default=30)
         parser.add_argument('--delay', type=float, default=1.0)
-        parser.add_argument('--url', type=str, default=settings.REDIS_URLS['default'])
+        parser.add_argument('--url', type=str, default=settings.CACHES['default']['LOCATION'])
 
     def handle(self, *args, **options):
         url = options['url']

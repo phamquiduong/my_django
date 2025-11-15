@@ -12,12 +12,17 @@ IF NOT EXIST .env (
 @REM Down all services
 echo ==================
 echo Shuting down all docker services
-docker-compose down
+docker-compose --profile * down
 
 @REM Build and up all services
 echo ==================
 echo Building and starting all docker services
-docker-compose up --build -d
+docker-compose ^
+    --profile server ^
+    --profile database ^
+    --profile mail_server ^
+    --profile celery_worker ^
+    up --build -d
 
 @REM Migrate
 echo ==================

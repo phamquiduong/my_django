@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 class DynamoDBService:
     def __init__(
         self,
-        region_name: str = settings.DYNAMO_DB_CONFIG['REGION_NAME'],
-        endpoint_url=settings.DYNAMO_DB_CONFIG['ENDPOINT_URL'],
-        aws_access_key_id: str = settings.DYNAMO_DB_CONFIG['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key: str = settings.DYNAMO_DB_CONFIG['AWS_SECRET_ACCESS_KEY'],
+        region_name: str = settings.REGION_NAME,
+        endpoint_url=settings.DYNAMO_DB_ENDPOINT_URL,
+        aws_access_key_id: str = settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key: str = settings.AWS_SECRET_ACCESS_KEY,
     ) -> None:
         connect_attr = {
             'region_name': region_name,

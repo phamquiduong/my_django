@@ -103,76 +103,38 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-POSTGRESQL_DB = {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': os.getenv('POSTGRES_DB'),
-    'USER': os.getenv('POSTGRES_USER'),
-    'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-    'HOST': os.getenv('POSTGRES_HOST'),
-    'PORT': os.getenv('POSTGRES_PORT'),
-}
-
-SQLITE3_DB = {
-    'ENGINE': 'django.db.backends.sqlite3',
-    'NAME': BASE_DIR / '../db.sqlite3',
-}
-
 DATABASES = {
-    'default': SQLITE3_DB if TEST_MODE else POSTGRESQL_DB,
-}
-
-
-# Redis
-REDIS = {
     'default': {
-        'HOST': os.getenv('REDIS_HOST'),
-        'PORT': os.getenv('REDIS_PORT'),
-        'PASSWORD': os.getenv('REDIS_PASSWORD'),
-        'DB_INDEX': os.getenv('DB_INDEX', '0'),
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
-}
-
-REDIS_URL_PATTERN = 'redis://:{password}@{host}:{port}/{db_index}'
-REDIS_URLS = {
-    name: REDIS_URL_PATTERN.format(
-        password=config['PASSWORD'],
-        host=config['HOST'],
-        port=config['PORT'],
-        db_index=config['DB_INDEX'],
-    )
-    for name, config in REDIS.items()
 }
 
 
 # Cache server
-CACHE_REDIS = {
-    'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-    'LOCATION': REDIS_URLS['default'],
-}
-
-CACHE_MEMORY = {
-    'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    'LOCATION': 'unique-snowflake',
-}
-
 CACHES = {
-    'default': CACHE_MEMORY if TEST_MODE else CACHE_REDIS,
+    'default': {
+        'BACKEND': os.getenv('CACHES_BACKEND'),
+        'LOCATION': os.getenv('CACHES_LOCATION'),
+    }
 }
 
 
 # Set the Session in Cache server
-SESSION_CACHED_DB = 'django.contrib.sessions.backends.cached_db'
-SESSION_DB = 'django.contrib.sessions.backends.db'
-SESSION_ENGINE = SESSION_CACHED_DB
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
+
+# AWS
+REGION_NAME = os.getenv('REGION_NAME')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 # DynamoDB
-DYNAMO_DB_CONFIG = {
-    'REGION_NAME': os.getenv('REGION_NAME'),
-    'AWS_ACCESS_KEY_ID': os.getenv('AWS_ACCESS_KEY_ID'),
-    'AWS_SECRET_ACCESS_KEY': os.getenv('AWS_SECRET_ACCESS_KEY'),
-    'ENDPOINT_URL': os.getenv('ENDPOINT_URL'),
-}
+DYNAMO_DB_ENDPOINT_URL = os.getenv('DYNAMO_DB_ENDPOINT_URL')
 
 
 # Password validation
@@ -302,8 +264,10 @@ SPECTACULAR_SETTINGS = {
 
 
 # Celery
-CELERY_BROKER_URL = REDIS_URLS['default']
-CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
+CELERY_RESULT_EXPIRES = timedelta(days=60)
+
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -315,6 +279,8 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER') or None
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') or None
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
+# Auto delete mail log in DynamoDB
 MAIL_LOG_EXPIRED = timedelta(days=60)
 
+# Account verify secret expired
 VERIFY_EMAIL_TIMEOUT = 10*60  # 10 minutes

@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY /resource /resource
 
 # Setup environment variables
-COPY /docker/.env /.env
+COPY /.env /.env
 
 # Copy source code
 WORKDIR /src
