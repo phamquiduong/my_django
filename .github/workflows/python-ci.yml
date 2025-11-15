@@ -12,6 +12,10 @@ jobs:
     env:
       ENVIRONMENT: testing
       SECRET_KEY: Myb6Bh1c2XDBA3xfYW6pwUH2NLZ3Kmkt
+      DB_ENGINE: django.db.backends.sqlite3
+      DB_NAME: ../db.sqlite3
+      CACHES_BACKEND: django.core.cache.backends.locmem.LocMemCache
+      CACHES_LOCATION: unique-snowflake
 
     steps:
       - name: Checkout repository
